@@ -12,12 +12,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.activities.Home
 import io.drdroid.assignment2.adapters.ShowAdapter
 import io.drdroid.assignment2.base.BaseFragment
-import io.drdroid.assignment2.databinding.FragmentSearchBinding
 import io.drdroid.assignment2.databinding.FragmentTagBinding
 import io.drdroid.assignment2.dialogs.CustomDialog
 import io.drdroid.assignment2.models.data.ShowModel
 import io.drdroid.assignment2.network.ApiCall
-import io.drdroid.assignment2.network.ApiDetails
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

@@ -49,7 +49,8 @@ class GenreAdapter(var context: Context, var set: List<String>, var controller: 
             controller.navigate(
                 R.id.genre_to_tag,
                 bundleOf(
-                    "tag" to genre
+                    "tag" to genre,
+                    "color" to color
                 )
             )
         }
