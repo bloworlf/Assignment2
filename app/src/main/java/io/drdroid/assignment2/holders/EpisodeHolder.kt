@@ -21,5 +21,4 @@ class EpisodeHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         summary = itemView.findViewById(R.id.summary)
         episode_number = itemView.findViewById(R.id.episode_number)
     }
-
 }

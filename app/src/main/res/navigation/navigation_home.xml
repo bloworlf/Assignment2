@@ -7,7 +7,11 @@
     <fragment
         android:id="@+id/menu_home"
         android:name="io.drdroid.assignment2.fragments.HomeFragment"
-        android:label="Home" />
+        android:label="Home">
+        <action
+            android:id="@+id/genre_to_tag"
+            app:destination="@id/tagFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/menu_search"
@@ -24,7 +28,7 @@
     <fragment
         android:id="@+id/tagFragment"
         android:name="io.drdroid.assignment2.fragments.TagFragment"
-        android:label="TagFragment" >
+        android:label="TagFragment">
         <action
             android:id="@+id/tag_to_tag"
             app:destination="@id/tagFragment" />
