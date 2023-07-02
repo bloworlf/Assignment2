@@ -24,7 +24,14 @@
     <fragment
         android:id="@+id/tagFragment"
         android:name="io.drdroid.assignment2.fragments.TagFragment"
-        android:label="TagFragment" />
+        android:label="TagFragment" >
+        <action
+            android:id="@+id/tag_to_tag"
+            app:destination="@id/tagFragment" />
+        <action
+            android:id="@+id/tag_to_details"
+            app:destination="@id/showDetailsFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/showDetailsFragment"

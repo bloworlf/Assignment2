@@ -13,12 +13,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.R
 import io.drdroid.assignment2.activities.Home
 import io.drdroid.assignment2.adapters.EpisodeAdapter
@@ -29,7 +31,7 @@ import io.drdroid.assignment2.interfaces.SeasonListener
 import io.drdroid.assignment2.models.data.EpisodeModel
 import io.drdroid.assignment2.models.data.SeasonModel
 import io.drdroid.assignment2.models.data.ShowModel
-import io.drdroid.assignment2.network.ApiDetails
+import io.drdroid.assignment2.network.ApiCall
 import io.drdroid.assignment2.utils.PaletteUtils
 import io.drdroid.assignment2.utils.Utils
 import io.drdroid.assignment2.utils.Utils.colorTransition
@@ -37,9 +39,15 @@ import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class ShowDetailsFragment : BaseFragment(), SeasonListener {
+
+    private val id: Int = ShowDetailsFragment::class.java.hashCode()
+
+    @Inject
+    lateinit var apiCall: ApiCall
 
     private lateinit var bind: FragmentShowDetailsBinding
     private lateinit var show: ShowModel
@@ -64,7 +72,7 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                seasons = ApiDetails.apiClient.getSeasons(id = show.id!!)
+                seasons = apiCall.getSeasons(id = show.id)
 
                 populateSeason()
             } catch (e: Exception) {
@@ -111,13 +119,31 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 
                         bind.root.setBackgroundColor(secondaryColor)
 
+//                        val home = requireActivity().actionBar.hom
+                        val wrapDrawable = DrawableCompat.wrap(
+                            ResourcesCompat.getDrawable(
+                                resources,
+                                R.drawable.back,
+                                null
+                            )!!
+                        )
                         if (Utils.isDark(dominantColor)) {
                             Utils.clearLightStatusBar(requireActivity())
                             (activity as Home).titleColor(Color.WHITE)
 
+
+                            DrawableCompat.setTint(wrapDrawable, Color.WHITE)
+                            (requireActivity() as Home).supportActionBar?.setHomeAsUpIndicator(
+                                wrapDrawable
+                            )
                         } else {
                             Utils.setLightStatusBar(requireActivity())
                             (activity as Home).titleColor(Color.BLACK)
+
+                            DrawableCompat.setTint(wrapDrawable, Color.BLACK)
+                            (requireActivity() as Home).supportActionBar?.setHomeAsUpIndicator(
+                                wrapDrawable
+                            )
                         }
                         if (Utils.isDark(secondaryColor)) {
                             bind.summary.setTextColor(Color.WHITE)
@@ -136,13 +162,21 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
                 bind.summary.setCompoundDrawables(
                     null,
                     null,
-                    ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.collapse, null),
+                    ResourcesCompat.getDrawable(
+                        requireActivity().resources,
+                        R.drawable.collapse,
+                        null
+                    ),
                     null
                 )
                 bind.summary.setCompoundDrawablesWithIntrinsicBounds(
                     null,
                     null,
-                    ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.collapse, null),
+                    ResourcesCompat.getDrawable(
+                        requireActivity().resources,
+                        R.drawable.collapse,
+                        null
+                    ),
                     null
                 )
             } else {
@@ -150,13 +184,21 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
                 bind.summary.setCompoundDrawables(
                     null,
                     null,
-                    ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.expand, null),
+                    ResourcesCompat.getDrawable(
+                        requireActivity().resources,
+                        R.drawable.expand,
+                        null
+                    ),
                     null
                 )
                 bind.summary.setCompoundDrawablesWithIntrinsicBounds(
                     null,
                     null,
-                    ResourcesCompat.getDrawable(requireActivity().resources, R.drawable.expand, null),
+                    ResourcesCompat.getDrawable(
+                        requireActivity().resources,
+                        R.drawable.expand,
+                        null
+                    ),
                     null
                 )
             }
@@ -254,7 +296,7 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 //                    episodeAdapter.notifyItemRangeRemoved(0, episodes.size)
                     episodes = listOf()
                 }
-                episodes = ApiDetails.apiClient.getSeasonEpisodes(id)
+                episodes = apiCall.getSeasonEpisodes(id)
 //                episodeAdapter.notifyItemRangeInserted(0, episodes.size)
 
                 episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), episodes)
@@ -267,10 +309,6 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
             }
         }
     }
-
-//    private fun populateEpisodes() {
-//        //
-//    }
 
     override fun onSeasonSelected(id: Int, colors: Map<String, Int>) {
         //load the episodes into episodeRecyclerview

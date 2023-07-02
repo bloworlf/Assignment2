@@ -4,12 +4,19 @@ import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.view.View
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.browser.customtabs.CustomTabsService
 import androidx.core.graphics.ColorUtils
 
 
@@ -86,5 +93,53 @@ object Utils {
             }
         }
         colorAnimation.start()
+    }
+
+    fun openUrl(context: Context, url: String?, color: Int = Color.BLACK) {
+        if (getCustomTabsPackages(context, Uri.parse(url)).size > 0) {
+            val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
+            builder.setNavigationBarColor(color)
+            builder.setToolbarColor(color)
+            builder.setShowTitle(true)
+            val customTabsIntent: CustomTabsIntent = builder.build()
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://"))
+            val resolveInfo = context.packageManager.resolveActivity(
+                browserIntent,
+                PackageManager.MATCH_DEFAULT_ONLY
+            )
+            if (resolveInfo != null && resolveInfo.activityInfo.packageName.isNotEmpty()) {
+                customTabsIntent.intent.setPackage(resolveInfo.activityInfo.packageName)
+            }
+            url?.let {
+                customTabsIntent.launchUrl(context, Uri.parse(url))
+            }
+
+        } else {
+            Toast.makeText(
+                context,
+                "Couldn't find an app to open the web page.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun getCustomTabsPackages(context: Context, url: Uri?): MutableList<ResolveInfo> {
+        val pm = context.packageManager
+        // Get default VIEW intent handler.
+        val activityIntent = Intent(Intent.ACTION_VIEW, url)
+
+        // Get all apps that can handle VIEW intents.
+        val resolvedActivityList = pm.queryIntentActivities(activityIntent, 0)
+        val packagesSupportingCustomTabs: MutableList<ResolveInfo> = mutableListOf()
+        for (info in resolvedActivityList) {
+            val serviceIntent = Intent()
+            serviceIntent.action = CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION
+            serviceIntent.setPackage(info.activityInfo.packageName)
+            // Check if this package also resolves the Custom Tabs service.
+            if (pm.resolveService(serviceIntent, 0) != null) {
+                packagesSupportingCustomTabs.add(info)
+            }
+        }
+        return packagesSupportingCustomTabs
     }
 }

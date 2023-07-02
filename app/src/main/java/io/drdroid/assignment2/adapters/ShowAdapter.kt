@@ -26,14 +26,19 @@ import io.drdroid.assignment2.holders.ShowHolder
 import io.drdroid.assignment2.models.data.ShowModel
 import io.drdroid.assignment2.utils.PaletteUtils
 import io.drdroid.assignment2.utils.Utils
+import io.drdroid.assignment2.utils.Utils.colorTransition
 
 
 class ShowAdapter(
     var context: Context,
-    var list: List<ShowModel>,
+    var list: MutableList<ShowModel>,
     var controller: NavController
 ) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    init {
+        hasStableIds()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -43,6 +48,10 @@ class ShowAdapter(
 
     override fun getItemCount(): Int {
         return list.size
+    }
+
+    override fun getItemId(position: Int): Long {
+        return list[position].id.toLong()
     }
 
     override fun onBindViewHolder(h0: RecyclerView.ViewHolder, position: Int) {
@@ -76,12 +85,26 @@ class ShowAdapter(
         holder.tags.setOnTagClickListener(object : TagView.OnTagClickListener {
             override fun onTagClick(position: Int, text: String?) {
                 //go to fragment for tag
-                controller.navigate(
-                    R.id.to_tags_frag,
-                    bundleOf(
-                        "tag" to text
-                    )
-                )
+                when (controller.currentDestination?.id) {
+                    R.id.menu_search -> {
+                        controller.navigate(
+                            R.id.to_tags_frag,
+                            bundleOf(
+                                "tag" to text
+                            )
+                        )
+                    }
+
+                    R.id.tagFragment -> {
+                        controller.navigate(
+                            R.id.tag_to_tag,
+                            bundleOf(
+                                "tag" to text
+                            )
+                        )
+                    }
+                }
+
             }
 
             override fun onTagLongClick(position: Int, text: String?) {
@@ -97,12 +120,27 @@ class ShowAdapter(
             }
         })
         holder.itemView.setOnClickListener {
-            controller.navigate(
-                R.id.to_show_details_frag,
-                bundleOf(
-                    "show" to Gson().toJson(show)
-                )
-            )
+
+            when (controller.currentDestination?.id) {
+                R.id.menu_search -> {
+                    controller.navigate(
+                        R.id.to_show_details_frag,
+                        bundleOf(
+                            "show" to Gson().toJson(show)
+                        )
+                    )
+                }
+
+                R.id.tagFragment -> {
+                    controller.navigate(
+                        R.id.tag_to_details,
+                        bundleOf(
+                            "show" to Gson().toJson(show)
+                        )
+                    )
+                }
+            }
+
         }
 
         show.image?.let {
@@ -110,19 +148,6 @@ class ShowAdapter(
                 .load(Uri.parse(show.image.medium))
                 .placeholder(R.mipmap.ic_launcher)
                 .into(holder.thumbnail)
-
-//            Glide.with(context).load(Uri.parse(show.image.original)).into(object :
-//                CustomTarget<Drawable>() {
-//                override fun onLoadCleared(placeholder: Drawable?) {
-//                }
-//
-//                override fun onResourceReady(
-//                    resource: Drawable,
-//                    transition: Transition<in Drawable>?
-//                ) {
-//                    holder.linearlayout.background = resource
-//                }
-//            })
 
             Glide.with(context).asBitmap().load(Uri.parse(show.image.original)).centerCrop()
                 .into(object : CustomTarget<Bitmap>() {
@@ -137,22 +162,22 @@ class ShowAdapter(
                         val color: Int = PaletteUtils.getUpperSideDominantColor(
                             resource
                         )
-                        holder.linearlayout.setBackgroundColor(color)
+                        holder.linearlayout.colorTransition(color)
 
                         if (Utils.isDark(color)) {
-                            //change textViews color
-
                             holder.name.setTextColor(Color.WHITE)
                             holder.language.setTextColor(Color.WHITE)
                             holder.period.setTextColor(Color.WHITE)
                             holder.summary.setTextColor(Color.WHITE)
                             holder.tags.tagTextColor = Color.WHITE
+                            holder.tags.backgroundColor = -color
                         } else {
                             holder.name.setTextColor(Color.BLACK)
                             holder.language.setTextColor(Color.BLACK)
                             holder.period.setTextColor(Color.BLACK)
                             holder.summary.setTextColor(Color.BLACK)
                             holder.tags.tagTextColor = Color.BLACK
+                            holder.tags.backgroundColor = -color
                         }
 
                     }

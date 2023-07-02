@@ -11,12 +11,13 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.R
 import io.drdroid.assignment2.base.BaseActivity
 import io.drdroid.assignment2.databinding.ActivityHomeBinding
 import io.drdroid.assignment2.utils.Utils
 
-
+@AndroidEntryPoint
 class Home : BaseActivity() {
 
     private lateinit var bind: ActivityHomeBinding
@@ -60,6 +61,12 @@ class Home : BaseActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         return controller.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    override fun onBackPressed() {
+        if (!onSupportNavigateUp()) {
+            super.onBackPressed()
+        }
     }
 
     fun showToolbar() {

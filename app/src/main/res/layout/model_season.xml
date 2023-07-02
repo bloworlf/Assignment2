@@ -28,7 +28,7 @@
                 android:layout_height="match_parent"
                 android:minHeight="200dp"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@drawable/video_player" />
 
 <!--            <TextView-->
 <!--                android:id="@+id/network"-->

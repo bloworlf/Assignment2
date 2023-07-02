@@ -4,6 +4,7 @@ object Constants {
 
     const val BASE_URL: String = "https://api.tvmaze.com/"
 
+    private const val LIST_SHOW: String = "shows"
     private const val SEARCH_SHOW: String = "search/shows"
     private const val SHOW_SCHEDULE: String = "schedule"
     private const val SHOW_SEASONS: String = "shows/{id}/seasons"
@@ -12,6 +13,7 @@ object Constants {
 //    private const val API_JSON_REQ: String = ".json"
 
     //    const val SEARCH: String = "$BASE_URL$SEARCH_SHOW$API_JSON_REQ"
+    const val SHOWS: String = "$BASE_URL$LIST_SHOW"
     const val SEARCH: String = "$BASE_URL$SEARCH_SHOW"
     const val SCHEDULE: String = "$BASE_URL$SHOW_SCHEDULE"
     const val SEASONS: String = "$BASE_URL$SHOW_SEASONS"

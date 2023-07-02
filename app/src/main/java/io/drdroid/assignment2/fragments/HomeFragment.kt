@@ -9,6 +9,8 @@ import io.drdroid.assignment2.databinding.FragmentHomeBinding
 
 class HomeFragment : BaseFragment() {
 
+    private val id: Int = HomeFragment::class.java.hashCode()
+
     lateinit var bind: FragmentHomeBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {

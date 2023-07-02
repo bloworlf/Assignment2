@@ -27,8 +27,9 @@
                 android:id="@+id/thumbnail"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:minHeight="250dp"
                 android:scaleType="centerCrop"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@drawable/chapter" />
 
             <TextView
                 android:id="@+id/episode_number"
@@ -80,7 +81,7 @@
                 android:maxLines="2"
                 android:text="This Emmy winning series is a comic look at the assorted humiliations and rare triumphs of a group of girls in their 20s."
                 android:textSize="12sp"
-                android:visibility="visible" />
+                android:visibility="gone" />
 
         </LinearLayout>
 

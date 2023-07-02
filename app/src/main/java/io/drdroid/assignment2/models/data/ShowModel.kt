@@ -15,7 +15,7 @@ data class ShowModel(
     @SerializedName("genres")
     val genres: List<String>,
     @SerializedName("id")
-    val id: Int?,
+    val id: Int,
     @SerializedName("image")
     val image: ImageModel?,
     @SerializedName("language")

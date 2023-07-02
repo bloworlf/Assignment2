@@ -15,14 +15,19 @@ import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import io.drdroid.assignment2.R
 import io.drdroid.assignment2.holders.EpisodeHolder
 import io.drdroid.assignment2.models.data.EpisodeModel
+import io.drdroid.assignment2.utils.PaletteUtils
+import io.drdroid.assignment2.utils.Utils
 
 
 class EpisodeAdapter(var context: Context, var list: List<EpisodeModel>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    private var domColor: Int = 0
     private val expanded: BooleanArray = BooleanArray(list.size)
 
     init {
@@ -47,7 +52,10 @@ class EpisodeAdapter(var context: Context, var list: List<EpisodeModel>) :
         holder.name.text = episode.name
         holder.episode_number.text = episode.number.toString()
         holder.runtime.text = "${episode.runtime} min"
-        holder.summary.text = Html.fromHtml(episode.summary)
+        episode.summary?.let {
+            holder.summary.visibility = View.VISIBLE
+            holder.summary.text = Html.fromHtml(episode.summary)
+        }
         if (expanded[pos]) {
             holder.summary.maxLines = 100
             holder.summary.setCompoundDrawables(
@@ -95,10 +103,34 @@ class EpisodeAdapter(var context: Context, var list: List<EpisodeModel>) :
             notifyItemChanged(pos)
         }
 
+        holder.itemView.setOnClickListener {
+            Utils.openUrl(context, episode.url, domColor)
+        }
+
         episode.image?.let {
             Glide.with(context)
                 .load(Uri.parse(episode.image.medium))
                 .into(holder.thumbnail)
+
+            Glide.with(context).asBitmap().load(Uri.parse(episode.image.original)).centerCrop()
+                .into(object : CustomTarget<Bitmap>() {
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                    }
+
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+
+                        domColor = PaletteUtils.getUpperSideDominantColor(
+                            resource
+                        )
+//                        secColor = PaletteUtils.getLowerSideDominantColor(
+//                            resource
+//                        )
+
+                    }
+                })
         }
     }
 
