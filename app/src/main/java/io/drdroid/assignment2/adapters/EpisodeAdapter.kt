@@ -105,6 +105,8 @@ class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) 
         episode.image?.let {
             Glide.with(context)
                 .load(Uri.parse(episode.image.medium))
+                .thumbnail(Glide.with(context).load(R.drawable.loading).fitCenter())
+                .placeholder(R.mipmap.ic_launcher)
                 .into(holder.thumbnail)
 
             Glide.with(context).asBitmap().load(Uri.parse(episode.image.original)).centerCrop()

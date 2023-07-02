@@ -14,4 +14,10 @@
         android:title="Search"
         app:showAsAction="always" />
 
+    <item
+        android:id="@+id/menu_more"
+        android:icon="@drawable/menu"
+        android:title="More"
+        app:showAsAction="always" />
+
 </menu>

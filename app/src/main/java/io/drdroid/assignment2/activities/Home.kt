@@ -40,7 +40,7 @@ class Home : BaseActivity() {
         navView = bind.btmView
         controller = findNavController(R.id.fragment)
         val navConfig = AppBarConfiguration(
-            setOf(R.id.menu_home, R.id.menu_search)
+            setOf(R.id.menu_home, R.id.menu_search, R.id.menu_more)
         )
 
         controller.setGraph(R.navigation.navigation_home, intent.extras)
@@ -50,7 +50,7 @@ class Home : BaseActivity() {
 
         controller.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
-                R.id.menu_home, R.id.menu_search -> {
+                R.id.menu_home, R.id.menu_search, R.id.menu_more -> {
                     navView.visibility = View.VISIBLE
                 }
 
