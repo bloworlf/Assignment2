@@ -58,7 +58,7 @@ class Splash : BaseActivity() {
 
         override fun onFinish() {
             val intent = Intent(this@Splash, Home::class.java)
-            intent.putExtra("genres", Gson().toJson(listGenres))
+            intent.putExtra("genres", Gson().toJson(listGenres.sorted()))
             this@Splash.startActivity(intent)
             this@Splash.finish()
         }

@@ -8,14 +8,13 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
 import io.drdroid.assignment2.R
 import io.drdroid.assignment2.holders.GenreHolder
 import io.drdroid.assignment2.utils.Utils
 import java.util.Random
 
 
-class GenreAdapter(var context: Context, var set: List<String>, var controller: NavController) :
+class GenreAdapter(var context: Context, var set: List<String>, private var controller: NavController) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
