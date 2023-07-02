@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.R
+import io.drdroid.assignment2.adapters.EmptyDataObserver
 import io.drdroid.assignment2.adapters.ShowAdapter
 import io.drdroid.assignment2.base.BaseFragment
 import io.drdroid.assignment2.databinding.FragmentSearchBinding
@@ -70,6 +71,11 @@ class SearchFragment : BaseFragment() {
 
         recyclerView = bind.recyclerView
         recyclerView.itemAnimator = LandingAnimator()
+
+        adapter = ShowAdapter(requireContext(), listShow, findNavController())
+        recyclerView.adapter = adapter
+        val emptyDataObserver = EmptyDataObserver(recyclerView, bind.emptyDataParent.root)
+        adapter.registerAdapterDataObserver(emptyDataObserver)
     }
 
     override fun onDestroyView() {
@@ -117,12 +123,11 @@ class SearchFragment : BaseFragment() {
     }
 
     private fun populateRecyclerView(list: List<ShowModel>) {
-        if (!this::adapter.isInitialized) {
-            listShow = list.toMutableList()
-            adapter = ShowAdapter(requireContext(), listShow, findNavController())
-            recyclerView.adapter = adapter
-            adapter.notifyItemRangeRemoved(0, listShow.size)
-            adapter.notifyItemRangeInserted(0, listShow.size)
+        if (adapter.list.isEmpty()) {
+            for (i in list.indices) {
+                adapter.list.add(list[i])
+                adapter.notifyItemInserted(i)
+            }
         } else {
             while (list.size < adapter.list.size) {
                 adapter.list.removeLast()
@@ -139,8 +144,6 @@ class SearchFragment : BaseFragment() {
                     adapter.notifyItemInserted(i)
                 }
             }
-//            adapter.list = listShow
-//            adapter.notifyItemRangeChanged(0, listShow.size)
         }
     }
 
@@ -154,7 +157,7 @@ class SearchFragment : BaseFragment() {
 
         searchView!!.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
-                if (query.length <= 3) {
+                if (query.length <= 2) {
                     Toast.makeText(
                         this@SearchFragment.requireContext(),
                         "Query string too short",

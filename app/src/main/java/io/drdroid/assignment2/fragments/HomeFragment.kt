@@ -1,10 +1,10 @@
 package io.drdroid.assignment2.fragments
 
+import android.R.attr.spacing
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -13,15 +13,15 @@ import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.adapters.GenreAdapter
 import io.drdroid.assignment2.base.BaseFragment
 import io.drdroid.assignment2.databinding.FragmentHomeBinding
-import io.drdroid.assignment2.databinding.FragmentSearchBinding
 import io.drdroid.assignment2.dialogs.CustomDialog
-import io.drdroid.assignment2.models.data.ShowModel
 import io.drdroid.assignment2.network.ApiCall
+import io.drdroid.assignment2.utils.GridSpacingItemDecoration
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class HomeFragment : BaseFragment() {
@@ -63,6 +63,7 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = bind.recyclerView
         recyclerView.itemAnimator = LandingAnimator()
+        recyclerView.addItemDecoration(GridSpacingItemDecoration(2, 10, false))
 
         if (listGenres.isEmpty()) {
             loadGenres()

@@ -24,7 +24,7 @@ import io.drdroid.assignment2.utils.PaletteUtils
 import io.drdroid.assignment2.utils.Utils
 
 
-class EpisodeAdapter(var context: Context, var list: List<EpisodeModel>) :
+class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var domColor: Int = 0

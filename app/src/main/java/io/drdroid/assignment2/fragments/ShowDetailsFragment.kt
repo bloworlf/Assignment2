@@ -23,6 +23,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.R
 import io.drdroid.assignment2.activities.Home
+import io.drdroid.assignment2.adapters.EmptyDataObserver
 import io.drdroid.assignment2.adapters.EpisodeAdapter
 import io.drdroid.assignment2.adapters.SeasonAdapter
 import io.drdroid.assignment2.base.BaseFragment
@@ -299,15 +300,47 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
                 episodes = apiCall.getSeasonEpisodes(id)
 //                episodeAdapter.notifyItemRangeInserted(0, episodes.size)
 
-                episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), episodes)
-                episodeRecycler.adapter = episodeAdapter
+//                episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), episodes)
+//                episodeRecycler.adapter = episodeAdapter
 
-                episodeRecycler.smoothScrollToPosition(0)
-//                populateEpisodes()
+//                episodeRecycler.smoothScrollToPosition(0)
+                populateEpisodes(episodes)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun populateEpisodes(list: List<EpisodeModel>) {
+        if(!this::episodeAdapter.isInitialized){
+            episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), list.toMutableList())
+            episodeRecycler.adapter = episodeAdapter
+            val emptyDataObserver = EmptyDataObserver(episodeRecycler, bind.emptyDataParent.root)
+            episodeAdapter.registerAdapterDataObserver(emptyDataObserver)
+        }
+        if (episodeAdapter.list.isEmpty()) {
+            for (i in list.indices) {
+                episodeAdapter.list.add(list[i])
+                episodeAdapter.notifyItemInserted(i)
+            }
+        } else {
+            while (list.size < episodeAdapter.list.size) {
+                episodeAdapter.list.removeLast()
+                episodeAdapter.notifyItemRemoved(episodeAdapter.list.size)
+            }
+            for (i in list.indices) {
+                if (i < episodeAdapter.list.size) {
+                    episodeAdapter.list.removeAt(i)
+                    episodeAdapter.notifyItemRemoved(i)
+                    episodeAdapter.list.add(i, list[i])
+                    episodeAdapter.notifyItemInserted(i)
+                } else {
+                    episodeAdapter.list.add(list[i])
+                    episodeAdapter.notifyItemInserted(i)
+                }
+            }
+        }
+        episodeRecycler.smoothScrollToPosition(0)
     }
 
     override fun onSeasonSelected(id: Int, colors: Map<String, Int>) {
