@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/navigation_home.xml"
+    app:startDestination="@id/menu_home">
+
+    <fragment
+        android:id="@+id/menu_home"
+        android:name="io.drdroid.assignment2.fragments.HomeFragment"
+        android:label="Home" />
+
+    <fragment
+        android:id="@+id/menu_search"
+        android:name="io.drdroid.assignment2.fragments.SearchFragment"
+        android:label="Search">
+        <action
+            android:id="@+id/to_tags_frag"
+            app:destination="@id/tagFragment" />
+        <action
+            android:id="@+id/to_show_details_frag"
+            app:destination="@id/showDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tagFragment"
+        android:name="io.drdroid.assignment2.fragments.TagFragment"
+        android:label="TagFragment" />
+
+    <fragment
+        android:id="@+id/showDetailsFragment"
+        android:name="io.drdroid.assignment2.fragments.ShowDetailsFragment"
+        android:label="ShowDetailsFragment" />
+</navigation>
