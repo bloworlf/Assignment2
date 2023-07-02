@@ -22,16 +22,19 @@ import io.drdroid.assignment2.holders.EpisodeHolder
 import io.drdroid.assignment2.models.data.EpisodeModel
 import io.drdroid.assignment2.utils.PaletteUtils
 import io.drdroid.assignment2.utils.Utils
+import kotlin.math.exp
 
 
 class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var domColor: Int = 0
-    private val expanded: BooleanArray = BooleanArray(list.size)
+    private val expanded: MutableList<Boolean> = mutableListOf()
 
     init {
-        expanded.fill(false)
+        for (i in list.indices) {
+            expanded.add(false)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -70,14 +73,6 @@ class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) 
                 ResourcesCompat.getDrawable(context.resources, R.drawable.collapse, null),
                 null
             )
-
-
-//                holder.summary.setCompoundDrawables(
-//                    null,
-//                    null,
-//                    rotateDrawable((holder.summary.compoundDrawables[2] as BitmapDrawable).bitmap),
-//                    null
-//                )
         } else {
             holder.summary.maxLines = 2
             holder.summary.setCompoundDrawables(
@@ -150,6 +145,18 @@ class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) 
             true
         )
         return BitmapDrawable(context.resources, rotatedBitmap)
+    }
+
+    fun updateExpandedList(size: Int) {
+        if (size > expanded.size) {
+            for (i in 0 until (size - expanded.size)) {
+                expanded.add(false)
+            }
+        } else {
+            for (i in 0 until (expanded.size - size)) {
+                expanded.removeLast()
+            }
+        }
     }
 
 }

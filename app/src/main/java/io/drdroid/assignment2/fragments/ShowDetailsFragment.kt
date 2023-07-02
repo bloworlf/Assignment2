@@ -318,6 +318,7 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
             val emptyDataObserver = EmptyDataObserver(episodeRecycler, bind.emptyDataParent.root)
             episodeAdapter.registerAdapterDataObserver(emptyDataObserver)
         }
+        episodeAdapter.updateExpandedList(list.size)
         if (episodeAdapter.list.isEmpty()) {
             for (i in list.indices) {
                 episodeAdapter.list.add(list[i])
