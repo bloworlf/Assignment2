@@ -10,4 +10,7 @@
     <color name="navigation">#F5F5FF</color>
     <color name="background">#AFAFAF</color>
     <color name="default_text">#757575</color>
+    <color name="orange">#e67d20</color>
+    <color name="red">#ff1b49</color>
+    <color name="blue">#2573FA</color>
 </resources>

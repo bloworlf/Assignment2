@@ -11,6 +11,8 @@ import io.drdroid.assignment2.adapters.GenreAdapter
 import io.drdroid.assignment2.base.BaseFragment
 import io.drdroid.assignment2.databinding.FragmentHomeBinding
 import io.drdroid.assignment2.databinding.FragmentSearchBinding
+import io.drdroid.assignment2.dialogs.CustomDialog
+import io.drdroid.assignment2.models.data.ShowModel
 import io.drdroid.assignment2.network.ApiCall
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +30,8 @@ class HomeFragment : BaseFragment() {
 
     private lateinit var bind: FragmentHomeBinding
     lateinit var recyclerView: RecyclerView
+
+    private var listGenres: List<String> = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,16 +56,28 @@ class HomeFragment : BaseFragment() {
         recyclerView = bind.recyclerView
         recyclerView.itemAnimator = LandingAnimator()
 
-        loadGenres()
+        if (listGenres.isEmpty()) {
+            loadGenres()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.storeRootView(id, bind)
+        super.onDestroyView()
     }
 
     private fun loadGenres() {
+        val dialog: CustomDialog = CustomDialog.loadingDialog(this@HomeFragment.requireContext())
+        dialog.show()
+
         CoroutineScope(Dispatchers.Main).launch {
-            val result = apiCall.getShows().filter { it.genres.isNotEmpty() }
+            listGenres = apiCall.getShows().filter { it.genres.isNotEmpty() }
                 .map { showModel -> showModel.genres }.map { l -> l.first() }.toSet().toList()
 
-            val adapter = GenreAdapter(requireContext(), result, findNavController())
+            val adapter = GenreAdapter(requireContext(), listGenres, findNavController())
             recyclerView.adapter = adapter
+
+            dialog.dismiss()
         }
     }
 }
