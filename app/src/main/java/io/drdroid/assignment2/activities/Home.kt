@@ -43,6 +43,8 @@ class Home : BaseActivity() {
             setOf(R.id.menu_home, R.id.menu_search)
         )
 
+        controller.setGraph(R.navigation.navigation_home, intent.extras)
+
         setupActionBarWithNavController(controller, navConfig)
         navView.setupWithNavController(controller)
 

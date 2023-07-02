@@ -4,8 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.adapters.GenreAdapter
 import io.drdroid.assignment2.base.BaseFragment
@@ -39,6 +42,11 @@ class HomeFragment : BaseFragment() {
         super.restoreRootView(id)?.let {
             bind = super.restoreRootView(id) as FragmentHomeBinding
         }
+//        val bundle: Bundle = requireActivity().intent?.extras!!
+//        listGenres = bundle.getStringArray("genres")!!.toList()
+        val bundle = requireArguments()
+        val itemType = object : TypeToken<List<String>>() {}.type
+        listGenres = Gson().fromJson(bundle.getString("genres"), itemType)
     }
 
     override fun onCreateView(
@@ -58,6 +66,8 @@ class HomeFragment : BaseFragment() {
 
         if (listGenres.isEmpty()) {
             loadGenres()
+        } else {
+            setupAdapter()
         }
     }
 
@@ -74,10 +84,14 @@ class HomeFragment : BaseFragment() {
             listGenres = apiCall.getShows().filter { it.genres.isNotEmpty() }
                 .map { showModel -> showModel.genres }.map { l -> l.first() }.toSet().toList()
 
-            val adapter = GenreAdapter(requireContext(), listGenres, findNavController())
-            recyclerView.adapter = adapter
+            setupAdapter()
 
             dialog.dismiss()
         }
+    }
+
+    private fun setupAdapter() {
+        val adapter = GenreAdapter(requireContext(), listGenres, findNavController())
+        recyclerView.adapter = adapter
     }
 }
