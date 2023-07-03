@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Assignment 2</string>
+    <string name="bookmark">Save as Favorite</string>
+    <string name="remove_bookmark">Remove from Favorite</string>
 </resources>

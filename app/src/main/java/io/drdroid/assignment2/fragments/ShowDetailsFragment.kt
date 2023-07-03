@@ -8,9 +8,12 @@ import android.net.Uri
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -242,11 +245,32 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
         episodeRecycler.itemAnimator = LandingAnimator()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.show_detail_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val activity = activity as? Home
         return when (item.itemId) {
             android.R.id.home -> {
                 activity?.onSupportNavigateUp()
+                true
+            }
+
+            R.id.menu_bookmark -> {
+                //toggle favorite
+                if (item.title == resources.getString(R.string.bookmark)) {
+                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.bookmarked, null)
+                    item.title = resources.getString(R.string.remove_bookmark)
+
+                    Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
+                } else {
+                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.bookmark, null)
+                    item.title = resources.getString(R.string.bookmark)
+
+                    Toast.makeText(requireContext(), "Removed", Toast.LENGTH_SHORT).show()
+                }
                 true
             }
 
@@ -312,8 +336,9 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
     }
 
     private fun populateEpisodes(list: List<EpisodeModel>) {
-        if(!this::episodeAdapter.isInitialized){
-            episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), list.toMutableList())
+        if (!this::episodeAdapter.isInitialized) {
+            episodeAdapter =
+                EpisodeAdapter(this@ShowDetailsFragment.requireContext(), list.toMutableList())
             episodeRecycler.adapter = episodeAdapter
             val emptyDataObserver = EmptyDataObserver(episodeRecycler, bind.emptyDataParent.root)
             episodeAdapter.registerAdapterDataObserver(emptyDataObserver)

@@ -1,6 +1,5 @@
 package io.drdroid.assignment2.fragments
 
-import android.R.attr.spacing
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -63,7 +62,9 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = bind.recyclerView
         recyclerView.itemAnimator = LandingAnimator()
-        recyclerView.addItemDecoration(GridSpacingItemDecoration(2, 10, false))
+        if(recyclerView.itemDecorationCount == 0){
+            recyclerView.addItemDecoration(GridSpacingItemDecoration(2, 10, false))
+        }
 
         if (listGenres.isEmpty()) {
             loadGenres()
