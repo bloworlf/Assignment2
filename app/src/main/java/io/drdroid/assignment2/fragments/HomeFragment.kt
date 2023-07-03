@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
@@ -19,6 +20,7 @@ import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import javax.inject.Inject
 
 
@@ -33,7 +35,7 @@ class HomeFragment : BaseFragment() {
     private lateinit var bind: FragmentHomeBinding
     lateinit var recyclerView: RecyclerView
 
-    private var listGenres: List<String> = mutableListOf()
+    private var listGenres: List<String>? = mutableListOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,14 +64,14 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         recyclerView = bind.recyclerView
         recyclerView.itemAnimator = LandingAnimator()
-        if(recyclerView.itemDecorationCount == 0){
+        if (recyclerView.itemDecorationCount == 0) {
             recyclerView.addItemDecoration(GridSpacingItemDecoration(2, 10, false))
         }
 
-        if (listGenres.isEmpty()) {
+        if (listGenres.isNullOrEmpty()) {
             loadGenres()
         } else {
-            setupAdapter()
+            setupAdapter(listGenres!!)
         }
     }
 
@@ -83,17 +85,33 @@ class HomeFragment : BaseFragment() {
         dialog.show()
 
         CoroutineScope(Dispatchers.Main).launch {
-            listGenres = apiCall.getShows().filter { it.genres.isNotEmpty() }
-                .map { showModel -> showModel.genres }.map { l -> l.first() }.toSet().toList()
+            listGenres = try {
+                apiCall.getShows().asSequence().filter { it.genres.isNotEmpty() }
+                    .map { showModel -> showModel.genres }.map { l -> l.first() }.toSet().toList()
+                    .sorted()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
 
-            setupAdapter()
+            if (!listGenres.isNullOrEmpty()) {
+                setupAdapter(listGenres!!)
 
-            dialog.dismiss()
+                dialog.dismiss()
+            } else {
+                Toast.makeText(
+                    this@HomeFragment.requireContext(),
+                    "Cannot load data",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+
+
         }
     }
 
-    private fun setupAdapter() {
-        val adapter = GenreAdapter(requireContext(), listGenres, findNavController())
+    private fun setupAdapter(list: List<String>) {
+        val adapter = GenreAdapter(requireContext(), list, findNavController())
         recyclerView.adapter = adapter
     }
 }

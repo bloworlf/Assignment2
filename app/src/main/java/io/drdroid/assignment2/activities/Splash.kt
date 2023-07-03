@@ -25,13 +25,18 @@ class Splash : BaseActivity() {
 
     lateinit var progress: ProgressBar
 
-    private var listGenres: List<String> = mutableListOf()
+    private var listGenres: List<String>? = mutableListOf()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         CoroutineScope(Dispatchers.Main).launch {
-            listGenres = apiCall.getShows().filter { it.genres.isNotEmpty() }
-                .map { showModel -> showModel.genres }.map { l -> l.first() }.toSet().toList()
+            listGenres = try {
+                apiCall.getShows().asSequence().filter { it.genres.isNotEmpty() }
+                    .map { showModel -> showModel.genres }.map { l -> l.first() }.toSet().toList()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
         }
 
         window.setFlags(
@@ -58,7 +63,7 @@ class Splash : BaseActivity() {
 
         override fun onFinish() {
             val intent = Intent(this@Splash, Home::class.java)
-            intent.putExtra("genres", Gson().toJson(listGenres.sorted()))
+            intent.putExtra("genres", Gson().toJson(listGenres?.sorted()))
             this@Splash.startActivity(intent)
             this@Splash.finish()
         }
