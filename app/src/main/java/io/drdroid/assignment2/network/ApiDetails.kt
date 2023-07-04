@@ -20,8 +20,8 @@ object ApiDetails {
         .addConverterFactory(GsonConverterFactory.create())
         .client(okHttpClient)
         .build()
-    val apiClient: ApiCall = retrofit.create(
-        ApiCall::class.java
+    val apiClient: TvShowCall = retrofit.create(
+        TvShowCall::class.java
     )
 
 }

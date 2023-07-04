@@ -17,9 +17,10 @@ import io.drdroid.assignment2.holders.SeasonHolder
 import io.drdroid.assignment2.interfaces.SeasonListener
 import io.drdroid.assignment2.models.data.SeasonModel
 import io.drdroid.assignment2.utils.PaletteUtils
-import io.drdroid.assignment2.utils.Utils
 import io.drdroid.assignment2.utils.Utils.colorTransition
 import io.drdroid.assignment2.utils.Utils.isDark
+import java.util.stream.IntStream
+
 
 class SeasonAdapter(
     var context: Context,
@@ -42,6 +43,14 @@ class SeasonAdapter(
 
     override fun getItemCount(): Int {
         return list.size
+    }
+
+    fun getItemPositionById(id: Int): Int {
+        return IntStream.range(0, list.size)
+            .filter { i: Int ->
+                list[i].id == id
+            }
+            .findFirst().orElse(-1)
     }
 
     override fun onBindViewHolder(h0: RecyclerView.ViewHolder, position: Int) {

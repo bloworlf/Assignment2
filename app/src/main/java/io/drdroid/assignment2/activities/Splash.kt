@@ -8,8 +8,9 @@ import android.widget.ProgressBar
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.base.BaseActivity
+import io.drdroid.assignment2.data.repo.Repository
 import io.drdroid.assignment2.databinding.ActivitySplashBinding
-import io.drdroid.assignment2.network.ApiCall
+import io.drdroid.assignment2.network.TvShowCall
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -19,7 +20,7 @@ import javax.inject.Inject
 class Splash : BaseActivity() {
 
     @Inject
-    lateinit var apiCall: ApiCall
+    lateinit var tvShowCall: Repository
 
     lateinit var bind: ActivitySplashBinding
 
@@ -31,7 +32,7 @@ class Splash : BaseActivity() {
 
         CoroutineScope(Dispatchers.Main).launch {
             listGenres = try {
-                apiCall.getShows().asSequence().filter { it.genres.isNotEmpty() }
+                tvShowCall.getShows().asSequence().filter { it.genres.isNotEmpty() }
                     .map { showModel -> showModel.genres }.map { l -> l.first() }.toSet().toList()
             } catch (e: Exception) {
                 e.printStackTrace()

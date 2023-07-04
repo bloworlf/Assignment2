@@ -25,7 +25,7 @@ import io.drdroid.assignment2.utils.Utils
 import kotlin.math.exp
 
 
-class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) :
+class EpisodeAdapter(var context: Context, var list: ArrayList<EpisodeModel>) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var domColor: Int = 0
@@ -53,7 +53,11 @@ class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) 
         val pos = position
 
         holder.name.text = episode.name
-        holder.episode_number.text = episode.number.toString()
+        holder.episode_number.text = if (episode.number == null) {
+            "Special"
+        } else {
+            episode.number.toString()
+        }
         holder.runtime.text = "${episode.runtime} min"
         episode.summary?.let {
             holder.summary.visibility = View.VISIBLE
@@ -159,6 +163,7 @@ class EpisodeAdapter(var context: Context, var list: MutableList<EpisodeModel>) 
                 expanded.removeLast()
             }
         }
+        expanded.fill(false)
     }
 
 }

@@ -1,5 +1,6 @@
 package io.drdroid.assignment2.fragments
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -8,18 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import io.drdroid.assignment2.R
 import io.drdroid.assignment2.adapters.EmptyDataObserver
 import io.drdroid.assignment2.adapters.ShowAdapter
 import io.drdroid.assignment2.base.BaseFragment
+import io.drdroid.assignment2.data.repo.Repository
 import io.drdroid.assignment2.databinding.FragmentSearchBinding
 import io.drdroid.assignment2.dialogs.CustomDialog
 import io.drdroid.assignment2.models.data.ShowModel
-import io.drdroid.assignment2.network.ApiCall
-import io.drdroid.assignment2.network.ApiDetails
+import io.drdroid.assignment2.models.view_model.SearchItemViewModel
+import io.drdroid.assignment2.network.TvShowCall
 import io.drdroid.assignment2.utils.Utils.hideKeyboard
 import jp.wasabeef.recyclerview.animators.LandingAnimator
 import kotlinx.coroutines.CoroutineScope
@@ -30,8 +35,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class SearchFragment : BaseFragment() {
 
-    @Inject
-    lateinit var apiCall: ApiCall
+//    @Inject
+//    lateinit var tvShowCall: Repository
 
     private val id: Int = SearchFragment::class.java.hashCode()
 
@@ -45,14 +50,27 @@ class SearchFragment : BaseFragment() {
 
     private lateinit var recyclerView: RecyclerView
     lateinit var adapter: ShowAdapter
+    lateinit var manager: StaggeredGridLayoutManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setHasOptionsMenu(true)
 
-        super.restoreRootView(id)?.let {
-            bind = super.restoreRootView(id) as FragmentSearchBinding
+//        super.restoreRootView(id)?.let {
+//            bind = super.restoreRootView(id) as FragmentSearchBinding
+//        }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            manager.spanCount = 2
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
+        } else {
+            manager.spanCount = 1
+            adapter.notifyItemRangeChanged(0, adapter.itemCount)
         }
     }
 
@@ -71,6 +89,14 @@ class SearchFragment : BaseFragment() {
 
         recyclerView = bind.recyclerView
         recyclerView.itemAnimator = LandingAnimator()
+        manager = StaggeredGridLayoutManager(
+            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                2
+            } else {
+                1
+            }, StaggeredGridLayoutManager.VERTICAL
+        )
+        recyclerView.layoutManager = manager
 
         adapter = ShowAdapter(requireContext(), listShow, findNavController())
         recyclerView.adapter = adapter
@@ -79,47 +105,40 @@ class SearchFragment : BaseFragment() {
     }
 
     override fun onDestroyView() {
-        super.storeRootView(id, bind)
+//        super.storeRootView(id, bind)
         super.onDestroyView()
     }
-//    override fun onResume() {
-//        super.onResume()
-//
-//        if (!this::adapter.isInitialized && listShow.isNotEmpty()) {
-//            adapter = ShowAdapter(requireContext(), listShow, findNavController())
-//            recyclerView.adapter = adapter
-//            adapter.notifyItemRangeRemoved(0, listShow.size)
-//            adapter.notifyItemRangeInserted(0, listShow.size)
-//        }
-////        if (listShow.isNotEmpty()) {
-////            recyclerView.adapter = adapter
-////            adapter.list = listShow
-////            adapter.notifyDataSetChanged()
-////        }
-//    }
 
     private fun makeQuery(query: String) {
-        val dialog: CustomDialog = CustomDialog.loadingDialog(this@SearchFragment.requireContext())
-        dialog.show()
+//        val dialog: CustomDialog = CustomDialog.loadingDialog(this@SearchFragment.requireContext())
+//        dialog.show()
+//
+//        CoroutineScope(Dispatchers.Main).launch {
+//            try {
+//                tvShowCall.search(q = query)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                null
+//            }?.let {
+//                populateRecyclerView(it.map { searchItemModel -> searchItemModel.show })
+//            }
+//
+//            dialog.dismiss()
+//        }
 
-        CoroutineScope(Dispatchers.Main).launch {
-            //api call
-            /*var result: ArrayList<SearchItemModel>? = */
-            try {
-                apiCall.search(q = query)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                null
-            }?.let {
-//                println("${it.size}")
-//                listShow =
-//                    it.map { searchItemModel -> searchItemModel.show }
+        val viewModel: SearchItemViewModel by viewModels()
 
-                populateRecyclerView(it.map { searchItemModel -> searchItemModel.show })
-            }
+//        if (!viewModel.isLoaded) {
+        viewModel.searchShow(query)
+//        }
 
-            dialog.dismiss()
+//        if (viewModel.isLoaded) {
+//            populateRecyclerView(viewModel.searchItemData.value?.map { searchItemModel -> searchItemModel.show }!!)
+//        }
+        viewModel.searchItemData.observe(viewLifecycleOwner) {
+            populateRecyclerView(it.map { searchItemModel -> searchItemModel.show })
         }
+
     }
 
     private fun populateRecyclerView(list: List<ShowModel>) {

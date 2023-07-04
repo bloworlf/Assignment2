@@ -10,6 +10,7 @@ import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.view.View
@@ -18,6 +19,7 @@ import android.widget.Toast
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsService
 import androidx.core.graphics.ColorUtils
+import androidx.core.graphics.drawable.DrawableCompat
 
 
 object Utils {
@@ -141,5 +143,15 @@ object Utils {
             }
         }
         return packagesSupportingCustomTabs
+    }
+
+    fun getThemedIcon(icon: Drawable, color: Int): Drawable {
+        if (isDark(color)) {
+            DrawableCompat.setTint(icon, Color.WHITE)
+        } else {
+            DrawableCompat.setTint(icon, Color.BLACK)
+        }
+
+        return icon
     }
 }

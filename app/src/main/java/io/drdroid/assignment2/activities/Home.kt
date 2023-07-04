@@ -6,6 +6,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -23,6 +24,8 @@ class Home : BaseActivity() {
     private lateinit var bind: ActivityHomeBinding
     private lateinit var controller: NavController
     private lateinit var navView: BottomNavigationView
+
+    //    private lateinit var navHost: NavHostController
     private lateinit var toolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,7 +75,9 @@ class Home : BaseActivity() {
     }
 
     fun showToolbar() {
-        bind.appBar.setExpanded(true, true)
+        if (this::bind.isInitialized) {
+            bind.appBar.setExpanded(true, true)
+        }
     }
 
     fun titleColor(color: Int) {

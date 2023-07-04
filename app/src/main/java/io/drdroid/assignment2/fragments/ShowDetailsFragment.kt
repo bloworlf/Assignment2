@@ -17,6 +17,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -30,12 +32,15 @@ import io.drdroid.assignment2.adapters.EmptyDataObserver
 import io.drdroid.assignment2.adapters.EpisodeAdapter
 import io.drdroid.assignment2.adapters.SeasonAdapter
 import io.drdroid.assignment2.base.BaseFragment
+import io.drdroid.assignment2.data.repo.Repository
 import io.drdroid.assignment2.databinding.FragmentShowDetailsBinding
 import io.drdroid.assignment2.interfaces.SeasonListener
 import io.drdroid.assignment2.models.data.EpisodeModel
 import io.drdroid.assignment2.models.data.SeasonModel
 import io.drdroid.assignment2.models.data.ShowModel
-import io.drdroid.assignment2.network.ApiCall
+import io.drdroid.assignment2.models.view_model.EpisodeViewModel
+import io.drdroid.assignment2.models.view_model.SeasonViewModel
+import io.drdroid.assignment2.network.TvShowCall
 import io.drdroid.assignment2.utils.PaletteUtils
 import io.drdroid.assignment2.utils.Utils
 import io.drdroid.assignment2.utils.Utils.colorTransition
@@ -50,8 +55,11 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 
     private val id: Int = ShowDetailsFragment::class.java.hashCode()
 
-    @Inject
-    lateinit var apiCall: ApiCall
+//    @Inject
+//    lateinit var tvShowCall: Repository
+
+    private val seasonsViewModel: SeasonViewModel by viewModels()
+    private val episodesViewModel: EpisodeViewModel by viewModels()
 
     private lateinit var bind: FragmentShowDetailsBinding
     private lateinit var show: ShowModel
@@ -59,12 +67,14 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
     var secondaryColor: Int = 0
 
     private lateinit var seasonRecycler: RecyclerView
-    private lateinit var seasons: List<SeasonModel>
+
+    //    private lateinit var seasons: List<SeasonModel>
     private lateinit var seasonAdapter: SeasonAdapter
 
 
     private lateinit var episodeRecycler: RecyclerView
-    private var episodes: List<EpisodeModel> = listOf()
+
+    //    private var episodes: List<EpisodeModel> = listOf()
     private lateinit var episodeAdapter: EpisodeAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,15 +84,17 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 
         show = Gson().fromJson(requireArguments().getString("show"), ShowModel::class.java)
 
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                seasons = apiCall.getSeasons(id = show.id)
+//        CoroutineScope(Dispatchers.Main).launch {
+//            try {
+//                seasons = tvShowCall.getSeasons(id = show.id)
+//
+//                populateSeason()
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
 
-                populateSeason()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        seasonsViewModel.getShowSeasons(show.id)
     }
 
     override fun onCreateView(
@@ -96,7 +108,10 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         (activity as Home).showToolbar()
-        (activity as AppCompatActivity).supportActionBar!!.title = show.name
+        // TODO: Find a way to fix title after configuration change
+        (activity as Home).supportActionBar?.let {
+            (activity as Home).supportActionBar!!.title = show.name
+        }
 
         show.image?.let {
             Glide.with(this).asBitmap().load(Uri.parse(show.image?.original)).centerCrop()
@@ -243,6 +258,15 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 
         episodeRecycler = bind.recyclerViewEpisodes
         episodeRecycler.itemAnimator = LandingAnimator()
+
+        seasonsViewModel.seasons.observe(viewLifecycleOwner) {
+            populateSeason(it)
+        }
+        episodesViewModel.episodes.observe(viewLifecycleOwner) {
+            episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), it)
+            episodeRecycler.adapter = episodeAdapter
+            populateEpisodes(it)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -261,12 +285,24 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
             R.id.menu_bookmark -> {
                 //toggle favorite
                 if (item.title == resources.getString(R.string.bookmark)) {
-                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.bookmarked, null)
+                    item.icon = Utils.getThemedIcon(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.bookmarked,
+                            null
+                        )!!, color = dominantColor
+                    )
                     item.title = resources.getString(R.string.remove_bookmark)
 
                     Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
                 } else {
-                    item.icon = ResourcesCompat.getDrawable(resources, R.drawable.bookmark, null)
+                    item.icon = Utils.getThemedIcon(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.bookmark,
+                            null
+                        )!!, color = dominantColor
+                    )
                     item.title = resources.getString(R.string.bookmark)
 
                     Toast.makeText(requireContext(), "Removed", Toast.LENGTH_SHORT).show()
@@ -278,14 +314,14 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
         }
     }
 
-    private fun populateSeason() {
+    private fun populateSeason(seasons: List<SeasonModel>) {
         if (!this::seasonAdapter.isInitialized) {
             seasonAdapter = SeasonAdapter(requireContext(), seasons, this)
             seasonRecycler.adapter = seasonAdapter
             seasonAdapter.notifyItemRangeRemoved(0, seasons.size)
             seasonAdapter.notifyItemRangeInserted(0, seasons.size)
         } else {
-
+            seasonAdapter.notifyDataSetChanged()
         }
     }
 
@@ -315,63 +351,118 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
     }
 
     private fun loadEpisodes(id: Int) {
-        CoroutineScope(Dispatchers.Main).launch {
-            try {
-                if (episodes.isNotEmpty()) {
-//                    episodeAdapter.notifyItemRangeRemoved(0, episodes.size)
-                    episodes = listOf()
-                }
-                episodes = apiCall.getSeasonEpisodes(id)
-//                episodeAdapter.notifyItemRangeInserted(0, episodes.size)
-
-//                episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), episodes)
-//                episodeRecycler.adapter = episodeAdapter
-
-//                episodeRecycler.smoothScrollToPosition(0)
-                populateEpisodes(episodes)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+//        CoroutineScope(Dispatchers.Main).launch {
+//            try {
+//                if (episodes.isNotEmpty()) {
+////                    episodeAdapter.notifyItemRangeRemoved(0, episodes.size)
+//                    episodes = listOf()
+//                }
+//                episodes = tvShowCall.getSeasonEpisodes(id)
+////                episodeAdapter.notifyItemRangeInserted(0, episodes.size)
+//
+////                episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), episodes)
+////                episodeRecycler.adapter = episodeAdapter
+//
+////                episodeRecycler.smoothScrollToPosition(0)
+//                populateEpisodes(episodes)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+        episodesViewModel.getEpisodesSeason(id)
+//        episodesViewModel.episodes.observe(viewLifecycleOwner) {
+//            episodeAdapter = EpisodeAdapter(this@ShowDetailsFragment.requireContext(), it)
+//            episodeRecycler.adapter = episodeAdapter
+//            populateEpisodes(it)
+//        }
     }
 
+    //    private fun populateEpisodes(list: List<EpisodeModel>) {
+//        if (!this::episodeAdapter.isInitialized) {
+//            episodeAdapter =
+//                EpisodeAdapter(
+//                    this@ShowDetailsFragment.requireContext(),
+//                    list as ArrayList<EpisodeModel>
+//                )
+//            episodeRecycler.adapter = episodeAdapter
+//            val emptyDataObserver = EmptyDataObserver(episodeRecycler, bind.emptyDataParent.root)
+//            episodeAdapter.registerAdapterDataObserver(emptyDataObserver)
+//        }
+//        episodeAdapter.updateExpandedList(list.size)
+//        if (episodeAdapter.list.isEmpty()) {
+//            for (i in list.indices) {
+//                episodeAdapter.list.add(list[i])
+//                episodeAdapter.notifyItemInserted(i)
+//            }
+//        } else {
+//            while (list.size < episodeAdapter.list.size) {
+//                episodeAdapter.list.removeLast()
+//                episodeAdapter.notifyItemRemoved(episodeAdapter.list.size)
+//            }
+//            for (i in list.indices) {
+//                println("$i of ${list.size}")
+////            for (i in 0..(list.size-1)) {
+//                if (i < episodeAdapter.list.size) {
+//                    episodeAdapter.list.removeAt(i)
+//                    episodeAdapter.notifyItemRemoved(i)
+//                    episodeAdapter.list.add(i, list[i])
+//                    episodeAdapter.notifyItemInserted(i)
+//                } else {
+//                    episodeAdapter.list.add(list[i])
+//                    episodeAdapter.notifyItemInserted(i)
+//                }
+//            }
+//        }
+//        episodeRecycler.smoothScrollToPosition(0)
+//    }
     private fun populateEpisodes(list: List<EpisodeModel>) {
         if (!this::episodeAdapter.isInitialized) {
             episodeAdapter =
-                EpisodeAdapter(this@ShowDetailsFragment.requireContext(), list.toMutableList())
+                EpisodeAdapter(
+                    this@ShowDetailsFragment.requireContext(),
+                    list as ArrayList<EpisodeModel>
+                )
             episodeRecycler.adapter = episodeAdapter
             val emptyDataObserver = EmptyDataObserver(episodeRecycler, bind.emptyDataParent.root)
             episodeAdapter.registerAdapterDataObserver(emptyDataObserver)
         }
         episodeAdapter.updateExpandedList(list.size)
-        if (episodeAdapter.list.isEmpty()) {
-            for (i in list.indices) {
-                episodeAdapter.list.add(list[i])
-                episodeAdapter.notifyItemInserted(i)
-            }
-        } else {
-            while (list.size < episodeAdapter.list.size) {
-                episodeAdapter.list.removeLast()
-                episodeAdapter.notifyItemRemoved(episodeAdapter.list.size)
-            }
-            for (i in list.indices) {
-                if (i < episodeAdapter.list.size) {
-                    episodeAdapter.list.removeAt(i)
-                    episodeAdapter.notifyItemRemoved(i)
-                    episodeAdapter.list.add(i, list[i])
-                    episodeAdapter.notifyItemInserted(i)
-                } else {
-                    episodeAdapter.list.add(list[i])
-                    episodeAdapter.notifyItemInserted(i)
-                }
-            }
-        }
+//        if (episodeAdapter.list.isEmpty()) {
+//            for (i in list.indices) {
+//                episodeAdapter.list.add(list[i])
+//                episodeAdapter.notifyItemInserted(i)
+//            }
+//        } else {
+//            while (list.size < episodeAdapter.list.size) {
+//                episodeAdapter.list.removeLast()
+//                episodeAdapter.notifyItemRemoved(episodeAdapter.list.size)
+//            }
+//            for (i in list.indices) {
+//                println("$i of ${list.size}")
+////            for (i in 0..(list.size-1)) {
+//                if (i < episodeAdapter.list.size) {
+//                    episodeAdapter.list.removeAt(i)
+//                    episodeAdapter.notifyItemRemoved(i)
+//                    episodeAdapter.list.add(i, list[i])
+//                    episodeAdapter.notifyItemInserted(i)
+//                } else {
+//                    episodeAdapter.list.add(list[i])
+//                    episodeAdapter.notifyItemInserted(i)
+//                }
+//            }
+//        }
+        episodeAdapter.list = list as ArrayList<EpisodeModel>
+        episodeAdapter.notifyDataSetChanged()
         episodeRecycler.smoothScrollToPosition(0)
     }
 
     override fun onSeasonSelected(id: Int, colors: Map<String, Int>) {
         //load the episodes into episodeRecyclerview
-        seasonRecycler.smoothScrollToPosition(seasons.indexOf(seasons.first { it.id == id }))
+        seasonRecycler.smoothScrollToPosition(
+            (seasonRecycler.adapter as SeasonAdapter).getItemPositionById(
+                id
+            )
+        )
         loadEpisodes(id)
 
         bind.root.colorTransition(colors["dominant"]!!)

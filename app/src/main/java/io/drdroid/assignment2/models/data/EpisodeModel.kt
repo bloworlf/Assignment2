@@ -19,7 +19,7 @@ data class EpisodeModel(
     @SerializedName("name")
     val name: String?,
     @SerializedName("number")
-    val number: Int,
+    val number: Int?,
     @SerializedName("rating")
     val rating: RatingModel?,
     @SerializedName("runtime")
