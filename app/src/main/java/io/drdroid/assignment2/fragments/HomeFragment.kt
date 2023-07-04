@@ -83,7 +83,7 @@ class HomeFragment : BaseFragment() {
             if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 3
             } else {
-                3
+                2
             }
         )
         recyclerView.layoutManager = manager
