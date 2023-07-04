@@ -35,6 +35,7 @@ class TagFragment : BaseFragment() {
 //    @Inject
 //    lateinit var tvShowCall: Repository
 
+    private lateinit var dialog: CustomDialog
     private val id: Int = TagFragment::class.java.hashCode() + System.currentTimeMillis().toInt()
     private val viewModel: ShowViewModel by viewModels()
 
@@ -57,6 +58,8 @@ class TagFragment : BaseFragment() {
 //        super.restoreRootView(id)?.let {
 //            bind = super.restoreRootView(id) as FragmentTagBinding
 //        }
+        dialog = CustomDialog.loadingDialog(this@TagFragment.requireContext())
+        dialog.show()
         viewModel.getShowByTag(strTag, page)
     }
 
@@ -113,6 +116,7 @@ class TagFragment : BaseFragment() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 if (!recyclerView.canScrollVertically(1)) { //1 for down
+                    dialog.show()
                     page++
 //                    loadShows(page)
                     viewModel.getShowByTag(strTag, page)
@@ -121,6 +125,7 @@ class TagFragment : BaseFragment() {
         })
 
         viewModel.showLiveData.observe(viewLifecycleOwner) {
+            dialog.dismiss()
             populateRecyclerView(it)
         }
 //        if (!this::listShow.isInitialized || listShow.isEmpty()) {

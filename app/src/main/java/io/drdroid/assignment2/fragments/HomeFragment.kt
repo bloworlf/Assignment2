@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.AndroidEntryPoint
+import io.drdroid.assignment2.adapters.EmptyDataObserver
 import io.drdroid.assignment2.adapters.GenreAdapter
 import io.drdroid.assignment2.base.BaseFragment
 import io.drdroid.assignment2.databinding.FragmentHomeBinding
@@ -182,5 +183,8 @@ class HomeFragment : BaseFragment() {
     private fun setupAdapter(list: List<String>) {
         adapter = GenreAdapter(requireContext(), list, findNavController())
         recyclerView.adapter = adapter
+
+        val emptyDataObserver = EmptyDataObserver(recyclerView, bind.emptyDataParent.root)
+        adapter.registerAdapterDataObserver(emptyDataObserver)
     }
 }

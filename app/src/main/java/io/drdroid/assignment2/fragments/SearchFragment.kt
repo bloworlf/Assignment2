@@ -110,8 +110,8 @@ class SearchFragment : BaseFragment() {
     }
 
     private fun makeQuery(query: String) {
-//        val dialog: CustomDialog = CustomDialog.loadingDialog(this@SearchFragment.requireContext())
-//        dialog.show()
+        val dialog: CustomDialog = CustomDialog.loadingDialog(this@SearchFragment.requireContext())
+        dialog.show()
 //
 //        CoroutineScope(Dispatchers.Main).launch {
 //            try {
@@ -136,6 +136,7 @@ class SearchFragment : BaseFragment() {
 //            populateRecyclerView(viewModel.searchItemData.value?.map { searchItemModel -> searchItemModel.show }!!)
 //        }
         viewModel.searchItemData.observe(viewLifecycleOwner) {
+            dialog.dismiss()
             populateRecyclerView(it.map { searchItemModel -> searchItemModel.show })
         }
 

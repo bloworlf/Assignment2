@@ -293,7 +293,7 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
                     )
                     item.title = resources.getString(R.string.remove_bookmark)
 
-                    Toast.makeText(requireContext(), "Saved", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Added to favorites", Toast.LENGTH_SHORT).show()
                 } else {
                     item.icon = Utils.getThemedIcon(
                         ResourcesCompat.getDrawable(
@@ -304,7 +304,7 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
                     )
                     item.title = resources.getString(R.string.bookmark)
 
-                    Toast.makeText(requireContext(), "Removed", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Removed from favorites", Toast.LENGTH_SHORT).show()
                 }
                 true
             }
