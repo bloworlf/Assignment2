@@ -108,7 +108,6 @@ class ShowDetailsFragment : BaseFragment(), SeasonListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         (activity as Home).showToolbar()
-        // TODO: Find a way to fix title after configuration change
         (activity as Home).supportActionBar?.let {
             (activity as Home).supportActionBar!!.title = show.name
         }

@@ -33,6 +33,7 @@ class HomeFragment : BaseFragment() {
     private lateinit var bind: FragmentHomeBinding
     lateinit var recyclerView: RecyclerView
     lateinit var manager: GridLayoutManager
+//    lateinit var decoration: GridSpacingItemDecoration
 
     //    private var listGenres: List<String>? = mutableListOf()
     private val viewModel: GenreViewModel by viewModels()
@@ -56,9 +57,13 @@ class HomeFragment : BaseFragment() {
         super.onConfigurationChanged(newConfig)
 
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            recyclerView.removeItemDecorationAt(0)
+            recyclerView.addItemDecoration(GridSpacingItemDecoration(3, 10, true))
             manager.spanCount = 3
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
         } else {
+            recyclerView.removeItemDecorationAt(0)
+            recyclerView.addItemDecoration(GridSpacingItemDecoration(2, 10, true))
             manager.spanCount = 2
             adapter.notifyItemRangeChanged(0, adapter.itemCount)
         }
@@ -89,7 +94,11 @@ class HomeFragment : BaseFragment() {
         recyclerView.layoutManager = manager
         recyclerView.itemAnimator = LandingAnimator()
         if (recyclerView.itemDecorationCount == 0) {
-            recyclerView.addItemDecoration(GridSpacingItemDecoration(2, 10, false))
+            recyclerView.addItemDecoration(GridSpacingItemDecoration(if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                3
+            } else {
+                2
+            }, 10, true))
         }
 
 //        val viewModel: ShowViewModel by viewModels()

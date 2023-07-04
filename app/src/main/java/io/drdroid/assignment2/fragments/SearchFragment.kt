@@ -168,7 +168,6 @@ class SearchFragment : BaseFragment() {
 
     @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        // TODO Add your menu entries here
 //        super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.search_menu, menu)
         searchView = (menu.findItem(R.id.search).actionView as SearchView)
