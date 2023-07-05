@@ -50,7 +50,13 @@ class CustomDialog(private val context: Context, cancelable: Boolean) {
         bind.apply {
 //            val view: View = LayoutInflater.from(context).inflate(R.layout.dialog_custom, null)
 //            val root = view.findViewById<LinearLayout>(R.id.root)
-            base.setBackgroundColor(ResourcesCompat.getColor(context.resources, R.color.navigation, null))
+            base.setBackgroundColor(
+                ResourcesCompat.getColor(
+                    context.resources,
+                    R.color.navigation,
+                    null
+                )
+            )
 //            card = view.findViewById<MaterialCardView>(R.id.card)
 //            title = view.findViewById<TextView>(R.id.title)
             title.visibility = View.GONE
@@ -197,8 +203,10 @@ class CustomDialog(private val context: Context, cancelable: Boolean) {
     }
 
     fun show() {
-        dialog = builder.create()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        if (!this::dialog.isInitialized || dialog == null) {
+            dialog = builder.create()
+            dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        }
         dialog.show()
     }
 
