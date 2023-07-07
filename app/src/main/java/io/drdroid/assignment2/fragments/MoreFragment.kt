@@ -4,11 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import io.drdroid.assignment2.R
 import io.drdroid.assignment2.base.BaseFragment
 import io.drdroid.assignment2.databinding.FragmentMoreBinding
 import io.drdroid.assignment2.utils.Utils
 
-class MoreFragment:BaseFragment() {
+class MoreFragment : BaseFragment() {
 
     private val id: Int = MoreFragment::class.java.hashCode()
 
@@ -34,6 +36,11 @@ class MoreFragment:BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        bind.favorites.setOnClickListener {
+            findNavController().navigate(
+                R.id.favoriteFragment
+            )
+        }
         bind.moreProjects.setOnClickListener {
             Utils.openUrl(requireContext(), "https://github.com/bloworlf")
         }

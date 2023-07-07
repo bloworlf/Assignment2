@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import io.drdroid.assignment2.R
+import io.drdroid.assignment2.dialogs.CustomDialog
 import io.drdroid.assignment2.holders.EpisodeHolder
 import io.drdroid.assignment2.models.data.EpisodeModel
 import io.drdroid.assignment2.utils.PaletteUtils
@@ -93,7 +94,7 @@ class EpisodeAdapter(var context: Context, var list: ArrayList<EpisodeModel>) :
             )
         }
         holder.summary.setOnClickListener {
-            var oldPos: Int = expanded.indexOf(true)
+            val oldPos: Int = expanded.indexOf(true)
             if (oldPos != -1 && oldPos != pos) {
                 expanded[oldPos] = false
                 notifyItemChanged(oldPos)
@@ -104,6 +105,8 @@ class EpisodeAdapter(var context: Context, var list: ArrayList<EpisodeModel>) :
 
         holder.itemView.setOnClickListener {
             Utils.openUrl(context, episode.url, domColor)
+//            val dialog = CustomDialog(context, true)
+//            dialog.show()
         }
 
         episode.image?.let {

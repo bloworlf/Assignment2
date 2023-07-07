@@ -6,6 +6,7 @@
         android:id="@+id/menu_bookmark"
         android:icon="@drawable/bookmark"
         android:title="@string/bookmark"
+        android:iconTint="@color/black"
         app:showAsAction="always" />
 
 </menu>
